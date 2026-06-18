@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte Reservo — Mayo vs. Junio 2026</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:28px 20px}
+  .container{max-width:980px;margin:0 auto}
+  h1{font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:4px}
+  .subtitle{color:#94a3b8;font-size:.9rem;margin-bottom:28px}
+  .badge{display:inline-block;background:#1e293b;border:1px solid #334155;border-radius:20px;padding:3px 12px;font-size:.75rem;color:#94a3b8;margin-bottom:28px}
+
+  /* KPIs */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:28px}
+  .kpi{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:18px 22px}
+  .kpi-label{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+  .kpi-value{font-size:2rem;font-weight:700;line-height:1}
+  .kpi-sub{font-size:.78rem;color:#94a3b8;margin-top:5px}
+  .kpi.green .kpi-value{color:#4ade80}
+  .kpi.blue .kpi-value{color:#60a5fa}
+  .kpi.amber .kpi-value{color:#fbbf24}
+  .kpi.teal .kpi-value{color:#2dd4bf}
+  .kpi.purple .kpi-value{color:#a78bfa}
+
+  /* Section */
+  .section{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:22px;margin-bottom:22px}
+  .section h2{font-size:.95rem;font-weight:600;color:#e2e8f0;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .section h2 .chip{font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:4px;background:#0f1117;color:#64748b}
+
+  /* Comparison table */
+  table{width:100%;border-collapse:collapse}
+  th{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#64748b;padding:7px 12px;text-align:left;border-bottom:1px solid #334155;white-space:nowrap}
+  th.num{text-align:right}
+  td{padding:10px 12px;font-size:.87rem;border-bottom:1px solid #1a2438}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  tr.total-row td{font-weight:700;color:#e2e8f0;border-top:2px solid #334155;border-bottom:none;padding-top:12px}
+
+  .pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.73rem;font-weight:700;min-width:64px;justify-content:center}
+  .pill.up{background:#14532d;color:#4ade80}
+  .pill.down{background:#450a0a;color:#f87171}
+  .pill.flat{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+
+  .bar-wrap{display:flex;align-items:center;gap:8px}
+  .bar-bg{flex:1;height:6px;background:#0f1117;border-radius:3px;overflow:hidden;min-width:60px}
+  .bar-fill{height:100%;border-radius:3px}
+  .bar-may{background:#3b82f6}
+  .bar-jun{background:#4ade80}
+
+  .cat-name{font-weight:500;color:#cbd5e1}
+  .sub-item{font-size:.8rem;color:#64748b;padding:4px 12px 4px 28px;border-bottom:1px solid #111827}
+  .sub-item:last-child{border-bottom:1px solid #1a2438}
+
+  /* Legend */
+  .legend{display:flex;gap:20px;margin-bottom:14px;font-size:.78rem;color:#94a3b8}
+  .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px}
+  .dot-may{background:#3b82f6}
+  .dot-jun{background:#4ade80}
+
+  /* Inline bars for profesionales */
+  .prof-bar-bg{flex:1;height:8px;background:#0f1117;border-radius:4px;overflow:hidden}
+  .prof-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .prof-name{width:180px;font-size:.82rem;color:#cbd5e1;flex-shrink:0}
+  .prof-count{width:36px;text-align:right;font-size:.8rem;color:#94a3b8}
+
+  .insight{background:#0f1117;border-left:3px solid #3b82f6;padding:10px 14px;border-radius:0 8px 8px 0;font-size:.82rem;color:#94a3b8;margin-top:14px;line-height:1.55}
+  .insight strong{color:#e2e8f0}
+  .insight.warn{border-color:#fbbf24}
+  .insight.success{border-color:#4ade80}
+
+  /* Online tag */
+  .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.7rem;font-weight:600}
+  .tag-blue{background:#1e3a5f;color:#60a5fa}
+  .tag-green{background:#14532d;color:#4ade80}
+
+  footer{text-align:center;color:#334155;font-size:.73rem;margin-top:40px;padding-top:20px;border-top:1px solid #1e293b}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="badge">Reservo · Beautyderm · 1ra quincena comparada</div>
+  <h1>Reporte de Citas — Reservo</h1>
+  <p class="subtitle">Mayo vs. Junio 2026 &nbsp;·&nbsp; Comparativa primeras 2 semanas &nbsp;·&nbsp; + Mayo completo</p>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi blue">
+      <div class="kpi-label">Mayo 1–15</div>
+      <div class="kpi-value">67</div>
+      <div class="kpi-sub">citas agendadas</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Junio 1–15</div>
+      <div class="kpi-value">78</div>
+      <div class="kpi-sub">citas agendadas</div>
+    </div>
+    <div class="kpi teal">
+      <div class="kpi-label">Variación</div>
+      <div class="kpi-value">+16,4%</div>
+      <div class="kpi-sub">+11 citas vs. mismo período</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Mayo Completo</div>
+      <div class="kpi-value">263</div>
+      <div class="kpi-sub">~131/quincena &nbsp;·&nbsp; pico 2da quincena</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-label">Online Jun 1–15</div>
+      <div class="kpi-value">12,8%</div>
+      <div class="kpi-sub">vs. 9,5% en mayo completo</div>
+    </div>
+  </div>
+
+  <!-- Comparativa por tratamiento -->
+  <div class="section">
+    <h2>Comparativa por tratamiento <span class="chip">1–15 de cada mes</span></h2>
+    <div class="legend">
+      <span><span class="legend-dot dot-may"></span>Mayo 1–15</span>
+      <span><span class="legend-dot dot-jun"></span>Junio 1–15</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tratamiento / Categoría</th>
+          <th class="num">May 1–15</th>
+          <th class="num">Jun 1–15</th>
+          <th class="num">Var.</th>
+          <th>Tendencia</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Rellenos -->
+        <tr>
+          <td class="cat-name">Rellenos / Fillers</td>
+          <td class="num">10</td>
+          <td class="num">17</td>
+          <td class="num"><span class="pill up">+70%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:59%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Aumento de Labios: <strong>4 → 11</strong> &nbsp;·&nbsp; Ojeras: 3 → 1 &nbsp;·&nbsp; Contorno/Mentón/Rinomod.: 3 → 5</td></tr>
+
+        <!-- Consultas Médicas -->
+        <tr>
+          <td class="cat-name">Consultas Médicas / Nutricionales</td>
+          <td class="num">8</td>
+          <td class="num">16</td>
+          <td class="num"><span class="pill up">+100%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:50%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Facial: 4 → 12 &nbsp;·&nbsp; Nutricional: 2 → 3 &nbsp;·&nbsp; Corporal: 2 → 1</td></tr>
+
+        <!-- Limpieza -->
+        <tr>
+          <td class="cat-name">Limpieza Facial</td>
+          <td class="num">7</td>
+          <td class="num">10</td>
+          <td class="num"><span class="pill up">+43%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:70%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Profunda: 7 → 8 &nbsp;·&nbsp; Deluxe (nueva): 0 → 2</td></tr>
+
+        <!-- Laser -->
+        <tr>
+          <td class="cat-name">Láser CO2 / Cool Peel</td>
+          <td class="num">5</td>
+          <td class="num">8</td>
+          <td class="num"><span class="pill up">+60%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:63%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Cool Peel Facial: 3 → 3 &nbsp;·&nbsp; variantes combinadas (cuello/párpados/escote): 1 → 4 &nbsp;·&nbsp; Resurfacing: 1 → 1</td></tr>
+
+        <!-- Bioestimuladores -->
+        <tr>
+          <td class="cat-name">Bioestimuladores</td>
+          <td class="num">8</td>
+          <td class="num">8</td>
+          <td class="num"><span class="pill flat">0%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:100%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Sculptra: 3 → 3 (ctrl) &nbsp;·&nbsp; Radiesse: 3 → 0 &nbsp;·&nbsp; HArmonyCa: 1 → 3 &nbsp;·&nbsp; NCTF: 1 → 1 &nbsp;·&nbsp; Belotero Revive: 0 → 1</td></tr>
+
+        <!-- Toxina -->
+        <tr>
+          <td class="cat-name">Toxina Botulínica</td>
+          <td class="num">13</td>
+          <td class="num">8</td>
+          <td class="num"><span class="pill down">−38%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:100%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:62%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Tercio Superior: 10 → 4 &nbsp;·&nbsp; Control: 2 → 2 &nbsp;·&nbsp; Bruxismo: 1 → 1 &nbsp;·&nbsp; Entrecejo: 0 → 1</td></tr>
+
+        <!-- Hydra Glow -->
+        <tr>
+          <td class="cat-name">Hydra Glow</td>
+          <td class="num">5</td>
+          <td class="num">0</td>
+          <td class="num"><span class="pill down">−100%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:100%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:0%"></div></div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Depilacion -->
+        <tr>
+          <td class="cat-name">Depilación Láser</td>
+          <td class="num">3</td>
+          <td class="num">0</td>
+          <td class="num"><span class="pill down">−100%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:100%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:0%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Estacional (invierno). Media Pierna + Cavado + Facial en mayo; ninguna en junio.</td></tr>
+
+        <!-- Peeling -->
+        <tr>
+          <td class="cat-name">Peeling</td>
+          <td class="num">2</td>
+          <td class="num">1</td>
+          <td class="num"><span class="pill down">−50%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:100%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:50%"></div></div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- BTL / CM Slim -->
+        <tr>
+          <td class="cat-name">BTL Exilis / CM Slim</td>
+          <td class="num">1</td>
+          <td class="num">4</td>
+          <td class="num"><span class="pill up">+300%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:25%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">BTL Exilis: 1 → 2 &nbsp;·&nbsp; CM Slim Glúteos: 0 → 2</td></tr>
+
+        <!-- Otros -->
+        <tr>
+          <td class="cat-name">Otros procedimientos</td>
+          <td class="num">5</td>
+          <td class="num">6</td>
+          <td class="num"><span class="pill up">+20%</span></td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill bar-may" style="width:83%"></div></div>
+              <div class="bar-bg"><div class="bar-fill bar-jun" style="width:100%"></div></div>
+            </div>
+          </td>
+        </tr>
+        <tr class="sub-item"><td colspan="5">Jun: Bichectomía x2, Carboxiterapia, Pink Intimate, Masaje, Infiltración</td></tr>
+
+        <!-- TOTAL -->
+        <tr class="total-row">
+          <td>TOTAL</td>
+          <td class="num">67</td>
+          <td class="num">78</td>
+          <td class="num"><span class="pill up">+16,4%</span></td>
+          <td></td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <div class="insight success">
+      <strong>Crecimiento general sólido:</strong> +11 citas vs. mismo período del mes anterior. Los rellenos/fillers lideraron el crecimiento (+7 citas), con Labios como motor principal (4 → 11). Las consultas médicas faciales casi se duplicaron (4 → 12) — puede indicar mayor captación de nuevos pacientes o campaña activa.
+    </div>
+    <div class="insight warn">
+      <strong>Toxina cayó −38%:</strong> pasó de ser el tratamiento más agendado (13 citas) al sexto lugar (8). Monitorear si es estacional o tendencia. Hydra Glow desapareció completamente — verificar si se discontinuó o solo no se promocionó.
+    </div>
+  </div>
+
+  <!-- Mayo completo vs 2da quincena -->
+  <div class="section">
+    <h2>Mayo completo — distribución por quincena</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tratamiento</th>
+          <th class="num">1–15 mayo</th>
+          <th class="num">16–31 mayo</th>
+          <th class="num">Total mayo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Toxina Botulínica (inc. controles)</td><td class="num">13</td><td class="num">38</td><td class="num">51</td></tr>
+        <tr><td>Rellenos / Fillers (inc. controles)</td><td class="num">10</td><td class="num">27</td><td class="num">37</td></tr>
+        <tr><td>Consultas Médicas / Nutricionales</td><td class="num">8</td><td class="num">17</td><td class="num">25</td></tr>
+        <tr><td>Limpieza Facial</td><td class="num">7</td><td class="num">10</td><td class="num">17</td></tr>
+        <tr><td>Bioestimuladores</td><td class="num">8</td><td class="num">14</td><td class="num">22</td></tr>
+        <tr><td>Láser CO2 / Cool Peel</td><td class="num">5</td><td class="num">6</td><td class="num">11</td></tr>
+        <tr><td>Hydra Glow</td><td class="num">5</td><td class="num">5</td><td class="num">10</td></tr>
+        <tr><td>Depilación Láser</td><td class="num">3</td><td class="num">0</td><td class="num">3</td></tr>
+        <tr><td>Peeling</td><td class="num">2</td><td class="num">6</td><td class="num">8</td></tr>
+        <tr><td>BTL Exilis / Slim</td><td class="num">1</td><td class="num">7</td><td class="num">8</td></tr>
+        <tr><td>Masajes</td><td class="num">1</td><td class="num">4</td><td class="num">5</td></tr>
+        <tr><td>Otros</td><td class="num">4</td><td class="num">55</td><td class="num">66</td></tr>
+        <tr class="total-row"><td>TOTAL</td><td class="num">67</td><td class="num">196</td><td class="num">263</td></tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      La <strong>2da quincena de mayo triplica a la primera</strong> (196 vs. 67 citas) — el grueso de los agendamientos y controles de mayo se concentra después del día 15. Es esperable: el patrón de Toxina con 32 controles en mayo indica que muchos pacientes atendidos en abril/principios de mayo volvieron en la 2da quincena.
+    </div>
+  </div>
+
+  <!-- Tipo de reserva -->
+  <div class="section">
+    <h2>Tipo de reserva — Online vs. Manual</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Período</th>
+          <th class="num">Manual</th>
+          <th class="num">Online</th>
+          <th class="num">Total</th>
+          <th class="num">% Online</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mayo completo</td>
+          <td class="num">238</td>
+          <td class="num">25</td>
+          <td class="num">263</td>
+          <td class="num"><span class="tag tag-blue">9,5%</span></td>
+        </tr>
+        <tr>
+          <td>Junio 1–15</td>
+          <td class="num">68</td>
+          <td class="num">10</td>
+          <td class="num">78</td>
+          <td class="num"><span class="tag tag-green">12,8%</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      El <strong>agendamiento online sube de 9,5% a 12,8%</strong>. La activación del bot de WhatsApp + Botmaker está contribuyendo. Para comparar: en Botmaker Junio 1–18 hubo 399 clicks al link de Reservo — de esos, al menos 10 resultaron en reserva online en la primera quincena.
+    </div>
+  </div>
+
+  <!-- Profesionales -->
+  <div class="section">
+    <h2>Citas por profesional</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Profesional</th>
+          <th class="num">Mayo completo</th>
+          <th class="num">Junio 1–15</th>
+          <th class="num">Var.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Dra. Denisse Rubio</td><td class="num">115</td><td class="num">28</td><td class="num"><span class="pill flat">ritmo similar</span></td></tr>
+        <tr><td>Ctra. Arelis Moreno</td><td class="num">51</td><td class="num">17</td><td class="num"><span class="pill flat">ritmo similar</span></td></tr>
+        <tr><td>Dra. Rose Lima</td><td class="num">48</td><td class="num">17</td><td class="num"><span class="pill up">más carga</span></td></tr>
+        <tr><td>Dra. Gabriela Moreno</td><td class="num">31</td><td class="num">9</td><td class="num"><span class="pill flat">ritmo similar</span></td></tr>
+        <tr><td>Lic. Camila De Nicola</td><td class="num">9</td><td class="num">3</td><td class="num"><span class="pill flat">–</span></td></tr>
+        <tr><td>Dr. Martin Milani</td><td class="num">7</td><td class="num">2</td><td class="num"><span class="pill flat">–</span></td></tr>
+        <tr><td>Dra. Ana Mesa</td><td class="num">1</td><td class="num">2</td><td class="num"><span class="pill up">sube</span></td></tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      <strong>Dra. Denisse Rubio concentra el 43,7% de las citas de mayo</strong> (115/263). A ritmo de junio proyecta ~56 citas para el mes completo — significativamente menos que mayo, lo que puede indicar vacaciones, licencia o redistribución de agenda. Verificar con el equipo.
+    </div>
+  </div>
+
+  <!-- Cruce Botmaker -->
+  <div class="section">
+    <h2>Cruce con Botmaker — Embudo WhatsApp → Reservo</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Etapa</th>
+          <th class="num">Junio 1–15 (aprox.)</th>
+          <th>Fuente</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Consultas que llegan a WhatsApp</td><td class="num">~1.300</td><td>Botmaker API (sesiones)</td></tr>
+        <tr><td>Hacen clic en link de Reservo</td><td class="num">~332</td><td>Botmaker evento url-click</td></tr>
+        <tr><td>Agendamientos efectivos en Reservo</td><td class="num">78</td><td>Reservo XLS</td></tr>
+        <tr class="total-row"><td>Conversión WhatsApp → cita</td><td class="num">~6%</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="insight warn">
+      De cada 100 personas que consultan por WhatsApp, solo <strong>~6 terminan con una cita agendada</strong>. El cuello de botella está entre el clic en Reservo (~25%) y la confirmación de la reserva. Posibles causas: precio, disponibilidad horaria, requieren hablar con un humano primero.
+    </div>
+  </div>
+
+  <footer>
+    Generado el 18/06/2026 &nbsp;·&nbsp; Fuente: Reservo (XLS export) + Botmaker API v2.0 &nbsp;·&nbsp; Mayo: 263 citas &nbsp;·&nbsp; Junio 1–15: 78 citas
+  </footer>
+
+</div>
+</body>
+</html>
